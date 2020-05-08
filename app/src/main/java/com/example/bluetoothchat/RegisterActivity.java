@@ -1,5 +1,6 @@
 package com.example.bluetoothchat;
 
+import android.annotation.SuppressLint;
 import android.os.Handler;
 import android.support.design.widget.Snackbar;
 import android.support.design.widget.TextInputLayout;
@@ -9,6 +10,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 public class RegisterActivity extends AppCompatActivity {
     TextInputLayout textInputLayoutUserName;
@@ -18,10 +20,8 @@ public class RegisterActivity extends AppCompatActivity {
     EditText editTextEmail;
     EditText editTextPassword;
 
-    //Declaration Button
     Button buttonRegister;
 
-    //Declaration SqliteHelper
     LoginPage sqliteHelper;
 
     @Override
@@ -39,10 +39,10 @@ public class RegisterActivity extends AppCompatActivity {
                     String Email = editTextEmail.getText().toString();
                     String Password = editTextPassword.getText().toString();
 
-                    //Check in the database is there any user associated with  this email
+
                     if (!sqliteHelper.isEmailExists(Email)) {
 
-                        //Email does not exist now add new user to database
+
                         sqliteHelper.addUser(new User(null, UserName, Email, Password));
                         Snackbar.make(buttonRegister, "User created successfully! Please Login ", Snackbar.LENGTH_LONG).show();
                         new Handler().postDelayed(new Runnable() {
@@ -53,7 +53,7 @@ public class RegisterActivity extends AppCompatActivity {
                         }, Snackbar.LENGTH_LONG);
                     }else {
 
-                        //Email exists with email input provided so show error user already exist
+
                         Snackbar.make(buttonRegister, "User already exists with same email ", Snackbar.LENGTH_LONG).show();
                     }
 
@@ -63,7 +63,7 @@ public class RegisterActivity extends AppCompatActivity {
         });
     }
 
-    //this method used to set Login TextView click event
+
     private void initTextViewLogin() {
         TextView textViewLogin = (TextView) findViewById(R.id.textViewLogin);
         textViewLogin.setOnClickListener(new View.OnClickListener() {
@@ -74,7 +74,7 @@ public class RegisterActivity extends AppCompatActivity {
         });
     }
 
-    //this method is used to connect XML views to its Objects
+
     private void initViews() {
         editTextEmail = (EditText) findViewById(R.id.editTextEmail);
         editTextPassword = (EditText) findViewById(R.id.editTextPassword);
@@ -86,16 +86,17 @@ public class RegisterActivity extends AppCompatActivity {
 
     }
 
-    //This method is used to validate input given by user
+
+    @SuppressLint("NewApi")
     public boolean validate() {
         boolean valid = false;
 
-        //Get values from EditText fields
+
         String UserName = editTextUserName.getText().toString();
         String Email = editTextEmail.getText().toString();
         String Password = editTextPassword.getText().toString();
 
-        //Handling validation for UserName field
+
         if (UserName.isEmpty()) {
             valid = false;
             textInputLayoutUserName.setError("Please enter valid username!");
@@ -109,7 +110,7 @@ public class RegisterActivity extends AppCompatActivity {
             }
         }
 
-        //Handling validation for Email field
+
         if (!android.util.Patterns.EMAIL_ADDRESS.matcher(Email).matches()) {
             valid = false;
             textInputLayoutEmail.setError("Please enter valid email!");
@@ -118,7 +119,7 @@ public class RegisterActivity extends AppCompatActivity {
             textInputLayoutEmail.setError(null);
         }
 
-        //Handling validation for Password field
+
         if (Password.isEmpty()) {
             valid = false;
             textInputLayoutPassword.setError("Please enter valid password!");

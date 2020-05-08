@@ -52,14 +52,13 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         findViewsByIds();
 
-        //check device support bluetooth or not
         bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
         if (bluetoothAdapter == null) {
             Toast.makeText(this, "Bluetooth is not available!", Toast.LENGTH_SHORT).show();
             finish();
         }
 
-        //show bluetooth devices dialog when click connect button
+
         btnConnect.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -67,7 +66,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        //set chat adapter
+
         chatMessages = new ArrayList<>();
         chatAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, chatMessages);
         listView.setAdapter(chatAdapter);
@@ -92,6 +91,9 @@ public class MainActivity extends AppCompatActivity {
                             break;
 
                         case ChatController.STATE_LISTEN:
+
+
+
                         case ChatController.STATE_NONE:
                             setStatus("Not connected");
                             break;
@@ -135,28 +137,25 @@ public class MainActivity extends AppCompatActivity {
         }
         bluetoothAdapter.startDiscovery();
 
-        //Initializing bluetooth adapters
         ArrayAdapter<String> pairedDevicesAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1);
         discoveredDevicesAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1);
 
-        //locate listviews and attatch the adapters
         ListView listView = (ListView) dialog.findViewById(R.id.pairedDeviceList);
         ListView listView2 = (ListView) dialog.findViewById(R.id.discoveredDeviceList);
         listView.setAdapter(pairedDevicesAdapter);
         listView2.setAdapter(discoveredDevicesAdapter);
 
-        // Register for broadcasts when a device is discovered
+
         IntentFilter filter = new IntentFilter(BluetoothDevice.ACTION_FOUND);
         registerReceiver(discoveryFinishReceiver, filter);
 
-        // Register for broadcasts when discovery has finished
+
         filter = new IntentFilter(BluetoothAdapter.ACTION_DISCOVERY_FINISHED);
         registerReceiver(discoveryFinishReceiver, filter);
 
         bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
         Set<BluetoothDevice> pairedDevices = bluetoothAdapter.getBondedDevices();
 
-        // If there are paired devices, add each one to the ArrayAdapter
         if (pairedDevices.size() > 0) {
             for (BluetoothDevice device : pairedDevices) {
                 pairedDevicesAdapter.add(device.getName() + "\n" + device.getAddress());
@@ -165,7 +164,6 @@ public class MainActivity extends AppCompatActivity {
             pairedDevicesAdapter.add(getString(R.string.none_paired));
         }
 
-        //Handling listview item click event
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 
             @Override
@@ -225,7 +223,7 @@ public class MainActivity extends AppCompatActivity {
                 if (inputLayout.getEditText().getText().toString().equals("")) {
                     Toast.makeText(MainActivity.this, "Please input some texts", Toast.LENGTH_SHORT).show();
                 } else {
-                    //TODO: here
+
                     sendMessage(inputLayout.getEditText().getText().toString());
                     inputLayout.getEditText().setText("");
                 }

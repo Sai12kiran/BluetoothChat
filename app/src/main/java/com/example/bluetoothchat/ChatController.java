@@ -37,27 +37,26 @@ class ChatController {
         this.handler = handler;
     }
 
-    // Set the current state of the chat connection
+
     private synchronized void setState(int state) {
         this.state = state;
 
         handler.obtainMessage(MainActivity.MESSAGE_STATE_CHANGE, state, -1).sendToTarget();
     }
 
-    // get current connection state
     public synchronized int getState() {
         return state;
     }
 
-    // start service
+
     public synchronized void start() {
-        // Cancel any thread
+
         if (connectThread != null) {
             connectThread.cancel();
             connectThread = null;
         }
 
-        // Cancel any running thresd
+
         if (connectedThread != null) {
             connectedThread.cancel();
             connectedThread = null;
@@ -70,9 +69,9 @@ class ChatController {
         }
     }
 
-    // initiate connection to remote device
+
     public synchronized void connect(BluetoothDevice device) {
-        // Cancel any thread
+
         if (state == STATE_CONNECTING) {
             if (connectThread != null) {
                 connectThread.cancel();
@@ -80,27 +79,24 @@ class ChatController {
             }
         }
 
-        // Cancel running thread
+
         if (connectedThread != null) {
             connectedThread.cancel();
             connectedThread = null;
         }
 
-        // Start the thread to connect with the given device
         connectThread = new ConnectThread(device);
         connectThread.start();
         setState(STATE_CONNECTING);
     }
 
-    // manage Bluetooth connection
+
     public synchronized void connected(BluetoothSocket socket, BluetoothDevice device) {
-        // Cancel the thread
         if (connectThread != null) {
             connectThread.cancel();
             connectThread = null;
         }
 
-        // Cancel running thread
         if (connectedThread != null) {
             connectedThread.cancel();
             connectedThread = null;
@@ -111,11 +107,11 @@ class ChatController {
             acceptThread = null;
         }
 
-        // Start the thread to manage the connection and perform transmissions
+
         connectedThread = new ReadWriteThread(socket);
         connectedThread.start();
 
-        // Send the name of the connected device back to the UI Activity
+
         Message msg = handler.obtainMessage(MainActivity.MESSAGE_DEVICE_OBJECT);
         Bundle bundle = new Bundle();
         bundle.putParcelable(MainActivity.DEVICE_OBJECT, device);
@@ -124,7 +120,7 @@ class ChatController {
 
         setState(STATE_CONNECTED);
     }
-    // stop all threads
+
     public synchronized void stop() {
         if (connectThread != null) {
             connectThread.cancel();
@@ -157,7 +153,6 @@ class ChatController {
         bundle.putString("toast", "Unable to connect device");
         msg.setData(bundle);
         handler.sendMessage(msg);
-        // Start the service over to restart listening mode
         ChatController.this.start();
     }
 
@@ -167,11 +162,9 @@ class ChatController {
         bundle.putString("toast", "Device connection was lost");
         msg.setData(bundle);
         handler.sendMessage(msg);
-        // Start the service over to restart listening mode
         ChatController.this.start();
     }
 
-    // runs while listening for incoming connections
     private class AcceptThread extends Thread {
         private final BluetoothServerSocket serverSocket;
 
@@ -194,19 +187,18 @@ class ChatController {
                 } catch (IOException e) {
                     break;
                 }
-                // If a connection was accepted
+
                 if (socket != null) {
                     synchronized (ChatController.this) {
                         switch (state) {
                             case STATE_LISTEN:
                             case STATE_CONNECTING:
-                                // start the connected thread.
+
                                 connected(socket, socket.getRemoteDevice());
                                 break;
                             case STATE_NONE:
                             case STATE_CONNECTED:
-                                // Either not ready or already connected. Terminate
-                                // new socket.
+
                                 try {
                                     socket.close();
                                 } catch (IOException e) {
@@ -226,7 +218,7 @@ class ChatController {
         }
     }
 
-    // runs while attempting to make an outgoing connection
+
     private class ConnectThread extends Thread {
         private final BluetoothSocket socket;
         private final BluetoothDevice device;
@@ -245,10 +237,9 @@ class ChatController {
         public void run() {
             setName("ConnectThread");
 
-            // Always cancel discovery because it will slow down a connection
+
             bluetoothAdapter.cancelDiscovery();
 
-            // Make a connection to the BluetoothSocket
             try {
                 socket.connect();
             } catch (IOException e) {
@@ -259,11 +250,10 @@ class ChatController {
                 connectionFailed();
                 return;
             }
-            // Reset the ConnectThread because we're done
+
             synchronized (ChatController.this) {
                 connectThread = null;
             }
-            // Start the connected thread
             connected(socket, device);
         }
 
@@ -274,7 +264,7 @@ class ChatController {
             }
         }
     }
-    // runs during a connection with a remote device
+
     private class ReadWriteThread extends Thread {
         private final BluetoothSocket bluetoothSocket;
         private final InputStream inputStream;
@@ -299,25 +289,24 @@ class ChatController {
             byte[] buffer = new byte[1024];
             int bytes;
 
-            // Keep listening to the InputStream
             while (true) {
                 try {
-                    // Read from the InputStream
+
                     bytes = inputStream.read(buffer);
 
-                    // Send the obtained bytes to the UI Activity
+
                     handler.obtainMessage(MainActivity.MESSAGE_READ, bytes, -1,
                             buffer).sendToTarget();
                 } catch (IOException e) {
                     connectionLost();
-                    // Start the service over to restart listening mode
+
                     ChatController.this.start();
                     break;
                 }
             }
         }
 
-        // write to OutputStream
+
         public void write(byte[] buffer) {
             try {
                 outputStream.write(buffer);

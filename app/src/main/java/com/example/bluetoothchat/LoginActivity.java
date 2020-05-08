@@ -16,14 +16,12 @@ public class LoginActivity extends AppCompatActivity {
     EditText editTextEmail;
     EditText editTextPassword;
 
-    //Declaration TextInputLayout
     TextInputLayout textInputLayoutEmail;
     TextInputLayout textInputLayoutPassword;
 
-    //Declaration Button
+
     Button buttonLogin;
 
-    //Declaration SqliteHelper
     LoginPage sqliteHelper;
 
 
@@ -36,33 +34,31 @@ public class LoginActivity extends AppCompatActivity {
         initCreateAccountTextView();
         initViews();
 
-        //set click event of login button
+
         buttonLogin.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
 
-                //Check user input is correct or not
+
                 if (validate()) {
 
-                    //Get values from EditText fields
+
                     String Email = editTextEmail.getText().toString();
                     String Password = editTextPassword.getText().toString();
 
-                    //Authenticate user
+
                     User currentUser = sqliteHelper.Authenticate(new User(null, null, Email, Password));
 
-                    //Check Authentication is successful or not
+
                     if (currentUser != null) {
 
                         Snackbar.make(buttonLogin, "Successfully Logged in!", Snackbar.LENGTH_LONG).show();
 
-                        //User Logged in Successfully Launch You home screen activity
                         Intent intent=new Intent(LoginActivity.this,MainActivity.class);
                         startActivity(intent);
                         finish();
                     } else {
 
-                        //User Logged in Failed
                         Snackbar.make(buttonLogin, "Failed to log in , please try again", Snackbar.LENGTH_LONG).show();
 
                     }
